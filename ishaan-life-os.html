@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ishaan — Life OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080810;--s1:#0E0E1A;--s2:#141422;--s3:#1C1C2E;
+  --b1:#252538;--b2:#2E2E45;--b3:#383858;
+  --t1:#F0EFF8;--t2:#9896B8;--t3:#4A4870;
+  --gold:#F0B429;--gold2:#FFD166;--goldbg:#1A1508;
+  --emerald:#06D6A0;--emebg:#021A12;
+  --sapphire:#4895EF;--sapbg:#041220;
+  --coral:#FF6B6B;--corbg:#1A0808;
+  --violet:#9B72CF;--viobg:#120A1E;
+  --r:14px;--r2:10px;--r3:6px;
+}
+html{font-size:16px;}
+body{font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;overflow-x:hidden;}
+
+/* subtle grain overlay */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.35;mix-blend-mode:overlay;
+}
+
+/* ── SIDEBAR ── */
+#sb{
+  width:200px;min-height:100vh;background:var(--s1);
+  border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:100;
+}
+.sb-logo{padding:26px 20px 20px;border-bottom:1px solid var(--b1);position:relative;}
+.sb-logo::after{content:'';position:absolute;bottom:0;left:20px;width:32px;height:2px;background:var(--gold);border-radius:99px;}
+.sb-name{font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:var(--t1);letter-spacing:-0.01em;}
+.sb-sub{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--t3);margin-top:3px;}
+.sb-dt{padding:14px 20px;border-bottom:1px solid var(--b1);}
+.sb-day{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+.sb-date{font-size:11px;color:var(--t3);margin-top:2px;}
+.sb-nav{padding:10px 0;flex:1;}
+.nb{font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--t3);padding:14px 20px 6px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;border-left:2px solid transparent;transition:all .15s;margin:1px 0;}
+.ni:hover{background:var(--s2);}
+.ni.on{background:var(--goldbg);border-left-color:var(--gold);}
+.ni.on .nl,.ni.on .nicon{color:var(--gold);}
+.ni:hover .nl,.ni:hover .nicon{color:var(--t1);}
+.nicon{font-size:14px;color:var(--t3);width:18px;text-align:center;transition:color .15s;}
+.nl{font-size:12.5px;font-weight:600;color:var(--t3);transition:color .15s;}
+.sb-foot{padding:16px 20px;border-top:1px solid var(--b1);}
+.sb-q{font-family:'Instrument Serif',serif;font-style:italic;font-size:11.5px;color:var(--t3);line-height:1.65;}
+.sb-qa{font-size:9px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-top:7px;}
+
+/* ── MAIN ── */
+#main{margin-left:200px;flex:1;min-height:100vh;max-width:calc(100vw - 200px);}
+
+/* ── TOPBAR ── */
+#topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,8,16,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--b1);
+  padding:0 36px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 1px 0 rgba(255,255,255,.03);
+}
+.tb-title{font-family:'Instrument Serif',serif;font-size:19px;font-style:italic;color:var(--t1);letter-spacing:-.01em;}
+.tb-right{display:flex;align-items:center;gap:12px;}
+.tb-time{font-size:13px;font-weight:700;color:var(--t3);letter-spacing:.06em;font-variant-numeric:tabular-nums;}
+.quick-btn{
+  display:flex;align-items:center;gap:7px;
+  background:var(--gold);color:var(--bg);
+  font-family:'Cabinet Grotesk',sans-serif;font-size:12px;font-weight:800;
+  padding:8px 18px;border-radius:99px;border:none;cursor:pointer;
+  transition:all .18s;letter-spacing:.04em;
+  box-shadow:0 2px 12px rgba(240,180,41,.3);
+}
+.quick-btn:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(240,180,41,.4);}
+
+/* ── PAGES ── */
+.page{display:none;padding:32px 36px 60px;}
+.page.on{display:block;animation:rise .32s cubic-bezier(.22,.68,0,1.2);}
+@keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION HEADER ── */
+.ph{margin-bottom:28px;}
+.ph-eye{font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.ph-h{font-family:'Instrument Serif',serif;font-size:30px;font-style:italic;color:var(--t1);line-height:1.1;}
+.ph-sub{font-size:13px;color:var(--t2);margin-top:7px;line-height:1.6;max-width:520px;}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+
+/* ── CARD BASE ── */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:22px;transition:border-color .2s;}
+.card:hover{border-color:var(--b2);}
+.clbl{font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;}
+
+/* ── SCORE HERO (WHOOP style) ── */
+.hero{
+  background:linear-gradient(135deg,var(--s2) 0%,var(--s1) 100%);
+  border:1px solid var(--b2);border-radius:var(--r);
+  padding:28px;display:grid;
+  grid-template-columns:auto 1fr auto;gap:28px;align-items:center;
+  margin-bottom:16px;position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(240,180,41,.04), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(240,180,41,.08) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-40px;left:80px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(6,214,160,.04) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-ring{position:relative;width:128px;height:128px;flex-shrink:0;}
+.hero-ring svg{transform:rotate(-90deg);filter:drop-shadow(0 0 8px rgba(240,180,41,.25));}
+.rtrack{fill:none;stroke:var(--b2);stroke-width:9;}
+.rarc{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1),stroke .4s ease;}
+.rcenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rpct{font-family:'Instrument Serif',serif;font-size:28px;font-style:italic;color:var(--t1);line-height:1;}
+.rlbl{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-top:2px;}
+.hero-mid{min-width:0;}
+.hero-score-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.hero-title{font-family:'Instrument Serif',serif;font-size:26px;font-style:italic;color:var(--t1);line-height:1.15;}
+.hero-msg{font-size:13px;color:var(--t2);margin-top:8px;line-height:1.6;}
+.hero-areas{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;}
+.apill{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 11px;border-radius:99px;
+  background:var(--s3);border:1px solid var(--b1);
+  font-size:10px;font-weight:700;color:var(--t3);
+  transition:all .15s;
+}
+.apill.done{background:var(--emebg);border-color:#0A3D28;color:var(--emerald);}
+.apill.partial{background:var(--goldbg);border-color:#2A1F08;color:var(--gold);}
+.adot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.hero-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.streak-hero{
+  background:var(--goldbg);border:1px solid #2A1F08;
+  border-radius:var(--r2);padding:12px 16px;text-align:center;
+}
+.sh-num{font-family:'Instrument Serif',serif;font-size:32px;font-style:italic;color:var(--gold);line-height:1;}
+.sh-lbl{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-top:3px;}
+
+/* ── METRIC CARDS ── */
+.mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:18px 20px;transition:border-color .2s,box-shadow .2s;}
+.mc:hover{border-color:var(--b3);box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.mc-lbl{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;}
+.mc-val{font-family:'Instrument Serif',serif;font-size:36px;font-style:italic;font-weight:400;color:var(--t1);line-height:1;}
+.mc-val.gold{color:var(--gold);}
+.mc-val.green{color:var(--emerald);}
+.mc-val.blue{color:var(--sapphire);}
+.mc-val.red{color:var(--coral);}
+.mc-sub{font-size:11px;color:var(--t3);margin-top:4px;}
+.mc-streak{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--goldbg);color:var(--gold);
+  font-size:10px;font-weight:800;padding:3px 9px;
+  border-radius:99px;margin-top:8px;border:1px solid #2A1F08;
+}
+
+/* ── PROGRESS ── */
+.prog{margin-top:12px;}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:5px;}
+.pt{height:4px;background:var(--b2);border-radius:99px;overflow:hidden;}
+.pf{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.pg{background:var(--gold);}
+.pe{background:var(--emerald);}
+.ps{background:var(--sapphire);}
+.pc{background:var(--coral);}
+.pv{background:var(--violet);}
+.pw{background:var(--t2);}
+
+/* ── MINI CHART (sparkline) ── */
+.spark{display:flex;align-items:flex-end;gap:3px;}
+.sp-bar{border-radius:2px 2px 0 0;min-height:2px;transition:height .4s ease;flex:1;}
+
+/* ── TREND CHART ── */
+.trend-chart{position:relative;}
+.tc-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.tc-bar{flex:1;border-radius:3px 3px 0 0;min-height:2px;transition:height .5s ease;cursor:default;position:relative;}
+.tc-bar:hover::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--b2);color:var(--t1);font-size:10px;font-weight:700;padding:4px 8px;border-radius:4px;
+  white-space:nowrap;z-index:10;border:1px solid var(--b3);pointer-events:none;
+}
+.tc-labels{display:flex;justify-content:space-between;margin-top:6px;}
+.tc-lbl{font-size:9px;color:var(--t3);flex:1;text-align:center;}
+
+/* ── DAILY TASK CARDS ── */
+.dtg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.dt{
+  background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);
+  border-left:3px solid var(--b2);
+  padding:18px;cursor:pointer;transition:all .2s;
+  display:flex;flex-direction:column;gap:12px;
+  position:relative;overflow:hidden;
+}
+.dt:hover{border-color:var(--b3);border-left-color:var(--b3);background:var(--s2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.25);}
+.dt.done{background:var(--emebg);border-color:#0D3020;border-left-color:var(--emerald);}
+.dt.done .dt-name{color:var(--emerald);}
+.dt-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.dt-icon{width:38px;height:38px;border-radius:10px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:17px;transition:background .18s;}
+.dt.done .dt-icon{background:rgba(6,214,160,.15);}
+.dt-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--b3);background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:transparent;flex-shrink:0;transition:all .18s;}
+.dt.done .dt-check{background:var(--emerald);border-color:var(--emerald);color:var(--bg);}
+.dt-cat{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:4px;}
+.dt-name{font-size:14px;font-weight:700;color:var(--t1);line-height:1.3;transition:color .18s;}
+.dt-detail{font-size:11px;color:var(--t3);line-height:1.5;}
+.dt-tag{
+  align-self:flex-start;font-size:9px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 9px;border-radius:99px;
+  background:var(--s3);color:var(--t3);border:1px solid var(--b2);
+}
+.dt.done .dt-tag{background:rgba(6,214,160,.12);color:var(--emerald);border-color:rgba(6,214,160,.2);}
+
+/* ── QUICK LOG MODAL ── */
+#modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(8,8,16,.8);
+  backdrop-filter:blur(8px);z-index:200;
+  align-items:center;justify-content:center;
+}
+#modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+#modal{
+  background:var(--s1);border:1px solid var(--b2);border-radius:18px;
+  padding:28px;width:560px;max-width:90vw;max-height:85vh;overflow-y:auto;
+  animation:slideUp .25s cubic-bezier(.22,.68,0,1.2);
+  box-shadow:0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.modal-title{font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:var(--t1);}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.modal-close:hover{background:var(--b2);color:var(--t1);}
+.modal-tabs{display:flex;gap:6px;margin-bottom:20px;background:var(--s2);border-radius:99px;padding:4px;}
+.mtab{flex:1;text-align:center;padding:7px 12px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.04em;cursor:pointer;color:var(--t3);transition:all .15s;}
+.mtab.on{background:var(--gold);color:var(--bg);}
+.modal-section{display:none;}
+.modal-section.on{display:block;}
+
+/* ── FORMS ── */
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:6px;}
+.inp{
+  width:100%;background:var(--s2);border:1px solid var(--b2);
+  border-radius:var(--r3);font-family:'Cabinet Grotesk',sans-serif;
+  font-size:13px;color:var(--t1);padding:10px 14px;outline:none;
+  transition:border-color .15s;
+}
+.inp:focus{border-color:var(--gold);}
+.inp::placeholder{color:var(--t3);}
+select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='%234A4870'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px;}
+input[type=time].inp{font-family:'Cabinet Grotesk',sans-serif;}
+textarea.inp{resize:vertical;min-height:80px;line-height:1.6;}
+.g2-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3-form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+
+/* ── BUTTONS ── */
+.btn{font-family:'Cabinet Grotesk',sans-serif;font-size:12px;font-weight:800;padding:10px 20px;border-radius:99px;border:none;cursor:pointer;transition:all .18s;letter-spacing:.03em;}
+.btn-gold{background:var(--gold);color:var(--bg);}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-1px);}
+.btn-ghost{background:var(--s3);color:var(--t2);border:1px solid var(--b2);}
+.btn-ghost:hover{color:var(--t1);border-color:var(--b3);}
+.btn-white{background:var(--t1);color:var(--bg);}
+.btn-white:hover{opacity:.9;}
+.btn-red{background:var(--corbg);color:var(--coral);border:1px solid rgba(255,107,107,.2);}
+.w100{width:100%;}
+.flex-row{display:flex;gap:8px;}
+
+/* ── SLIDERS ── */
+input[type=range]{width:100%;height:3px;border-radius:99px;appearance:none;background:var(--b2);outline:none;cursor:pointer;margin-top:8px;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);cursor:pointer;}
+.s-gold::-webkit-slider-thumb{background:var(--gold);}
+.s-red::-webkit-slider-thumb{background:var(--coral);}
+.s-blue::-webkit-slider-thumb{background:var(--sapphire);}
+
+/* ── MOOD ── */
+.mood-row{display:flex;gap:8px;}
+.mb{width:48px;height:48px;border-radius:10px;border:1.5px solid var(--b2);background:var(--s2);font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+.mb:hover{transform:scale(1.1);border-color:var(--b3);}
+.mb.on{border-color:var(--gold);background:var(--goldbg);transform:scale(1.1);}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.tbl th{text-align:left;padding:9px 14px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--b1);}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--b1);color:var(--t2);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--s2);}
+.tbl td.hi{color:var(--t1);font-weight:600;}
+.del{font-size:11px;color:var(--t3);cursor:pointer;padding:2px 4px;transition:color .15s;}
+.del:hover{color:var(--coral);}
+
+/* ── BADGES ── */
+.bdg{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;}
+.bg-e{background:var(--emebg);color:var(--emerald);border:1px solid #0A3020;}
+.bg-g{background:var(--goldbg);color:var(--gold);border:1px solid #2A1F08;}
+.bg-s{background:var(--sapbg);color:var(--sapphire);border:1px solid #0A1E32;}
+.bg-c{background:var(--corbg);color:var(--coral);border:1px solid #2A1010;}
+.bg-d{background:var(--s3);color:var(--t3);border:1px solid var(--b2);}
+
+/* ── WEEK STRIP ── */
+.wstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:14px;}
+.wd{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1.5px solid var(--b1);background:var(--s2);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);}
+.wd span{font-size:13px;font-weight:800;color:var(--t2);}
+.wd.today{border-color:var(--gold);}
+.wd.today span{color:var(--gold);}
+.wd.hit{background:var(--emebg);border-color:#0D3020;color:var(--emerald);}
+.wd.hit span{color:var(--emerald);}
+
+/* ── HEATMAP ── */
+.hmap{display:grid;grid-template-columns:repeat(32,1fr);gap:3px;margin-top:12px;}
+.hc{aspect-ratio:1;border-radius:2px;background:var(--s3);transition:transform .1s,opacity .1s;}
+.hc:hover{transform:scale(1.5);opacity:1!important;}
+.hc.h1{background:rgba(6,214,160,.2);}
+.hc.h2{background:rgba(6,214,160,.5);}
+.hc.h3{background:var(--emerald);box-shadow:0 0 6px rgba(6,214,160,.4);}
+
+/* ── COACH BOX ── */
+.coach{
+  background:linear-gradient(135deg,var(--s2) 0%,var(--viobg) 100%);
+  border:1px solid rgba(155,114,207,.15);border-radius:var(--r);padding:24px;
+  position:relative;overflow:hidden;
+}
+.coach::before{content:'\201C';position:absolute;top:-14px;right:14px;font-family:'Instrument Serif',serif;font-size:110px;color:var(--violet);opacity:.1;pointer-events:none;line-height:1;}
+.coach-lbl{font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--violet);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.coach-txt{font-family:'Instrument Serif',serif;font-style:italic;font-size:15px;color:var(--t1);line-height:1.75;font-weight:400;}
+
+/* ── HABIT ROW ── */
+.hr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r2);border:1px solid var(--b1);background:var(--s2);cursor:pointer;transition:all .15s;user-select:none;margin-bottom:7px;}
+.hr:hover{border-color:var(--b3);background:var(--s3);}
+.hr.done{background:var(--emebg);border-color:#0D3020;}
+.hr.done .hn{color:var(--emerald);}
+.hcheck{width:19px;height:19px;border-radius:50%;border:2px solid var(--b3);background:var(--s3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:transparent;transition:all .15s;}
+.hr.done .hcheck{background:var(--emerald);border-color:var(--emerald);color:var(--bg);}
+.hemoji{font-size:15px;flex-shrink:0;}
+.hn{font-size:13px;font-weight:600;color:var(--t1);flex:1;transition:color .15s;}
+.hmeta{font-size:10px;color:var(--t3);}
+.hstreak{font-size:10px;font-weight:800;color:var(--gold);background:var(--goldbg);padding:2px 8px;border-radius:99px;flex-shrink:0;}
+
+/* ── SCROLL ── */
+.scroll{overflow-y:auto;max-height:300px;}
+.scroll::-webkit-scrollbar{width:3px;}
+.scroll::-webkit-scrollbar-track{background:transparent;}
+.scroll::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+/* ── SETTINGS ── */
+.set-card{background:var(--s1);border:1px solid var(--b1);border-left:3px solid var(--gold);border-radius:var(--r);padding:22px;margin-bottom:16px;}
+.set-title{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.set-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(240,180,41,.4);}
+
+/* ── FINANCE HERO ── */
+.fi-hero{display:grid;grid-template-columns:repeat(3,1fr);background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
+.fic{padding:22px 24px;}
+.fic+.fic{border-left:1px solid var(--b1);}
+.fi-l{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:9px;}
+.fi-v{font-family:'Instrument Serif',serif;font-size:30px;font-style:italic;color:var(--t1);line-height:1;}
+.fi-s{font-size:11px;color:var(--t3);margin-top:4px;}
+.fi-bar{height:2px;background:var(--b2);margin-top:12px;border-radius:99px;overflow:hidden;}
+.fi-fill{height:100%;border-radius:99px;transition:width .8s ease;}
+
+/* ── TIMER ── */
+.timer-d{font-family:'Instrument Serif',serif;font-size:52px;font-style:italic;color:var(--t1);letter-spacing:-.02em;line-height:1;}
+.timer-s{font-size:11px;color:var(--t3);margin-top:5px;}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--t1);color:var(--bg);
+  font-size:12px;font-weight:800;padding:11px 18px;
+  border-radius:99px;z-index:999;
+  opacity:0;transform:translateY(8px);
+  transition:all .22s;pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+#toast.show{opacity:1;transform:translateY(0);}
+
+/* ── UTILS ── */
+.sep{height:1px;background:var(--b1);margin:18px 0;}
+.mb16{margin-bottom:16px;}.mb24{margin-bottom:24px;}.mt16{margin-top:16px;}.mt8{margin-top:8px;}
+.c-g{color:var(--gold);}.c-e{color:var(--emerald);}.c-s{color:var(--sapphire);}.c-c{color:var(--coral);}.c-m{color:var(--t3);}
+.fs11{font-size:11px;}.fs12{font-size:12px;}
+.fw7{font-weight:700;}.fw8{font-weight:800;}
+.row{display:flex;align-items:center;gap:8px;}
+.space-between{justify-content:space-between;}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sb">
+  <div class="sb-logo">
+    <div class="sb-name">Ishaan</div>
+    <div class="sb-sub">Life OS</div>
+  </div>
+  <div class="sb-dt">
+    <div class="sb-day" id="sbDay">Wednesday</div>
+    <div class="sb-date" id="sbDate">11 March 2026</div>
+  </div>
+  <div class="sb-nav">
+    <div class="nb">Overview</div>
+    <div class="ni on" onclick="go('home')"><div class="nicon">◉</div><span class="nl">Dashboard</span></div>
+    <div class="nb">Trackers</div>
+    <div class="ni" onclick="go('fitness')"><div class="nicon">🏋️</div><span class="nl">Fitness</span></div>
+    <div class="ni" onclick="go('learning')"><div class="nicon">📚</div><span class="nl">Learning & CFA</span></div>
+    <div class="ni" onclick="go('finance')"><div class="nicon">💰</div><span class="nl">Finance</span></div>
+    <div class="ni" onclick="go('wellbeing')"><div class="nicon">🧘</div><span class="nl">Wellbeing</span></div>
+    <div class="ni" onclick="go('sleep')"><div class="nicon">🌙</div><span class="nl">Sleep</span></div>
+  </div>
+  <div class="sb-foot">
+    <div class="sb-q" id="sbQ">"Discipline is the bridge between goals and accomplishment."</div>
+    <div class="sb-qa">Your Coach</div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main id="main">
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-title" id="tbTitle">Dashboard</div>
+  <div class="tb-right">
+    <div class="tb-time" id="tbTime">--:--</div>
+    <button class="quick-btn" onclick="openModal()">⚡ Quick Log</button>
+  </div>
+</div>
+
+<!-- ████ HOME ████ -->
+<div class="page on" id="page-home">
+
+  <!-- Hero score -->
+  <div class="hero">
+    <div class="hero-ring">
+      <svg width="128" height="128" viewBox="0 0 128 128">
+        <circle class="rtrack" cx="64" cy="64" r="54"/>
+        <circle class="rarc" id="heroArc" cx="64" cy="64" r="54"
+          stroke="var(--gold)" stroke-dasharray="339" stroke-dashoffset="339"/>
+      </svg>
+      <div class="rcenter">
+        <div class="rpct" id="heroPct">0%</div>
+        <div class="rlbl">Score</div>
+      </div>
+    </div>
+    <div class="hero-mid">
+      <div class="hero-score-label">⚡ Today's Performance</div>
+      <div class="hero-title" id="heroTitle">Let's build today.</div>
+      <div class="hero-msg" id="heroMsg">Complete your daily tasks to start scoring. Every check compounds.</div>
+      <div class="hero-areas" id="heroAreas"></div>
+    </div>
+    <div class="hero-right">
+      <div class="streak-hero">
+        <div class="sh-num" id="heroStreak">0</div>
+        <div class="sh-lbl">Day Streak 🔥</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 metric cards -->
+  <div class="g5 mb24" id="metricCards"></div>
+
+  <!-- Daily tasks -->
+  <div class="clbl" style="margin-bottom:10px;" id="todayLbl">Today — <span class="c-g" id="todayDay"></span></div>
+  <div class="dtg" id="dailyTasks"></div>
+
+  <!-- Trends + Coach -->
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="clbl">7-Day Completion Trend</div>
+      <div class="trend-chart">
+        <div class="tc-bars" id="trendBars"></div>
+        <div class="tc-labels" id="trendLabels"></div>
+      </div>
+      <div class="sep" style="margin:14px 0 10px;"></div>
+      <div class="clbl">30-Day Heatmap</div>
+      <div class="hmap" id="heatmap"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="coach">
+        <div class="coach-lbl">⚡ Coach — Based on your data</div>
+        <div class="coach-txt" id="coachMsg">"Loading your personalised insight…"</div>
+      </div>
+      <div class="card">
+        <div class="clbl">Weekly Streaks</div>
+        <div id="streakList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ████ FITNESS ████ -->
+<div class="page" id="page-fitness">
+  <div class="ph"><div class="ph-eye">Physical Excellence</div><div class="ph-h">Fitness Tracker</div><div class="ph-sub">5 sessions a week. Set your split per day below — it drives your dashboard reminder automatically.</div></div>
+
+  <div class="set-card">
+    <div class="set-title"><div class="set-dot"></div>Weekly Schedule</div>
+    <div id="gymGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;"></div>
+    <div class="g3-form" style="margin-top:16px;">
+      <div class="fg"><label class="fl">Weekly Target</label><input class="inp" type="number" id="f-wt" value="5" min="1" max="7" oninput="saveFS()"></div>
+      <div class="fg"><label class="fl">Default Duration (mins)</label><input class="inp" type="number" id="f-dd" value="60" oninput="saveFS()"></div>
+      <div class="fg"><label class="fl">Rest Day Label</label><input class="inp" type="text" id="f-rl" value="Rest & Recovery" oninput="saveFS()"></div>
+    </div>
+  </div>
+
+  <div class="g4 mb24">
+    <div class="mc"><div class="mc-lbl">Streak</div><div class="mc-val green" id="f-st">0</div><div class="mc-sub">days in a row</div><div class="mc-streak">🔥 <span id="f-stk">0</span> days</div></div>
+    <div class="mc"><div class="mc-lbl">This Week</div><div class="mc-val" id="f-wk">0/5</div><div class="mc-sub">sessions done</div><div class="prog"><div class="pt"><div class="pf pe" id="f-wb" style="width:0%"></div></div></div></div>
+    <div class="mc"><div class="mc-lbl">This Month</div><div class="mc-val blue" id="f-mo">0</div><div class="mc-sub">sessions logged</div></div>
+    <div class="mc"><div class="mc-lbl">All Time</div><div class="mc-val" id="f-all">0</div><div class="mc-sub">total sessions</div></div>
+  </div>
+
+  <div class="card mb24"><div class="clbl">This Week</div><div class="wstrip" id="f-ws"></div></div>
+
+  <div class="g2 mb24">
+    <div class="card">
+      <div class="clbl">Log Session</div>
+      <div class="fg"><label class="fl">Type</label>
+        <select class="inp" id="f-type">
+          <option>Push — Chest / Shoulders / Triceps</option><option>Pull — Back / Biceps</option>
+          <option>Legs</option><option>Upper Body</option><option>Lower Body</option>
+          <option>Full Body</option><option>Cardio</option><option>Sport</option><option>Active Recovery</option>
+        </select>
+      </div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Duration (mins)</label><input class="inp" type="number" id="f-dur" placeholder="60"></div>
+        <div class="fg"><label class="fl">Intensity</label><select class="inp" id="f-int"><option>Easy</option><option selected>Moderate</option><option>Hard</option><option>All-out</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><input class="inp" type="text" id="f-notes" placeholder="PB, how you felt…"></div>
+      <button class="btn btn-gold w100" onclick="logWorkout()">Log Session ✓</button>
+    </div>
+    <div class="card">
+      <div class="clbl">7-Day Trend</div>
+      <div class="trend-chart"><div class="tc-bars" id="f-trend"></div><div class="tc-labels" id="f-trendL"></div></div>
+      <div class="sep"></div>
+      <div class="coach-lbl" style="color:var(--emerald);font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;">⚡ Fitness Coach</div>
+      <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:14px;color:var(--t1);line-height:1.7;">"Five sessions a week doesn't just build a body — it builds a standard. Show up for the person you're becoming."</div>
+    </div>
+  </div>
+
+  <div class="card"><div class="clbl">History</div><div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Mins</th><th>Intensity</th><th>Notes</th><th></th></tr></thead><tbody id="f-log"></tbody></table></div></div>
+</div>
+
+<!-- ████ LEARNING ████ -->
+<div class="page" id="page-learning">
+  <div class="ph"><div class="ph-eye">Intellectual Growth</div><div class="ph-h">Learning & CFA</div><div class="ph-sub">Set your daily targets here — they appear on your dashboard automatically every morning.</div></div>
+
+  <div class="set-card">
+    <div class="set-title"><div class="set-dot"></div>Daily & Monthly Targets</div>
+    <div class="g3-form">
+      <div class="fg"><label class="fl">CFA Hours / Day</label><input class="inp" type="number" id="l-cd" placeholder="1.5" step=".5" oninput="saveLS()"></div>
+      <div class="fg"><label class="fl">CFA Hours / Month</label><input class="inp" type="number" id="l-cm" placeholder="40" oninput="saveLS()"></div>
+      <div class="fg"><label class="fl">Learning Hours / Day</label><input class="inp" type="number" id="l-ld" placeholder="1" step=".5" oninput="saveLS()"></div>
+      <div class="fg"><label class="fl">Books / Month</label><input class="inp" type="number" id="l-bm" placeholder="2" oninput="saveLS()"></div>
+      <div class="fg"><label class="fl">Today's CFA Topic</label><input class="inp" type="text" id="l-ct" placeholder="e.g. Fixed Income" oninput="saveLS()"></div>
+      <div class="fg"><label class="fl">Today's Learning Topic</label><input class="inp" type="text" id="l-lt" placeholder="e.g. Python, Finance news" oninput="saveLS()"></div>
+    </div>
+  </div>
+
+  <div class="g4 mb24">
+    <div class="mc"><div class="mc-lbl">CFA This Month</div><div class="mc-val blue" id="l-cmh">0h</div><div class="mc-sub">hours studied</div><div class="prog"><div class="prog-row"><span>Target</span><span id="l-cmp">0%</span></div><div class="pt"><div class="pf ps" id="l-cmb" style="width:0%"></div></div></div></div>
+    <div class="mc"><div class="mc-lbl">CFA Streak</div><div class="mc-val gold" id="l-cs">0</div><div class="mc-sub">days studied</div><div class="mc-streak">🔥 <span id="l-csk">0</span> days</div></div>
+    <div class="mc"><div class="mc-lbl">Books This Month</div><div class="mc-val" id="l-bn">0</div><div class="mc-sub">completed</div><div class="prog"><div class="pt"><div class="pf pw" id="l-bb" style="width:0%"></div></div></div></div>
+    <div class="mc"><div class="mc-lbl">Learning This Week</div><div class="mc-val" id="l-lw">0h</div><div class="mc-sub">total hours</div></div>
+  </div>
+
+  <div class="g2 mb24">
+    <div class="card">
+      <div class="clbl">CFA Focus Timer</div>
+      <div class="timer-d" id="timerD">00:00:00</div>
+      <div class="timer-s" id="timerS">Ready — press Start</div>
+      <div class="fg mt16"><label class="fl">Topic</label><input class="inp" type="text" id="timerT" placeholder="Fixed Income, Ethics…"></div>
+      <div class="flex-row">
+        <button class="btn btn-gold" onclick="startT()" style="flex:1;">▶ Start</button>
+        <button class="btn btn-ghost" onclick="pauseT()" style="flex:1;">⏸ Pause</button>
+        <button class="btn btn-white" onclick="stopT()" style="flex:1;">⏹ Log</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="clbl">Manual Log</div>
+      <div class="fg"><label class="fl">Type</label><select class="inp" id="l-mt"><option value="CFA">CFA</option><option value="Book">Book</option><option value="Course">Course</option><option value="Other">Other</option></select></div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Hours</label><input class="inp" type="number" id="l-mh" placeholder="1.5" step=".5"></div>
+        <div class="fg"><label class="fl">Topic</label><input class="inp" type="text" id="l-mto" placeholder="What did you study?"></div>
+      </div>
+      <button class="btn btn-gold w100" onclick="logLearn()">Log Session</button>
+      <div class="sep"></div>
+      <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:14px;color:var(--t1);line-height:1.7;">"Charterholders are made in the quiet hours nobody else sees."</div>
+    </div>
+  </div>
+
+  <div class="card"><div class="clbl">Study Log</div><div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Topic</th><th>Hours</th><th></th></tr></thead><tbody id="l-log"></tbody></table></div></div>
+</div>
+
+<!-- ████ FINANCE ████ -->
+<div class="page" id="page-finance">
+  <div class="ph"><div class="ph-eye">Wealth Building</div><div class="ph-h">Finance Tracker</div><div class="ph-sub">Set your targets. Log every transaction. Build the habit of financial awareness daily.</div></div>
+
+  <div class="set-card">
+    <div class="set-title"><div class="set-dot"></div>Monthly Targets</div>
+    <div class="g3-form">
+      <div class="fg"><label class="fl">Monthly Income (£)</label><input class="inp" type="number" id="fi-inc" placeholder="3000" oninput="saveFI()"></div>
+      <div class="fg"><label class="fl">Savings Target (£)</label><input class="inp" type="number" id="fi-st" placeholder="500" oninput="saveFI()"></div>
+      <div class="fg"><label class="fl">Monthly Budget (£)</label><input class="inp" type="number" id="fi-bt" placeholder="1500" oninput="saveFI()"></div>
+    </div>
+  </div>
+
+  <div class="fi-hero">
+    <div class="fic"><div class="fi-l">Saved This Month</div><div class="fi-v c-g" id="fi-sv">£0</div><div class="fi-s" id="fi-ss">of target</div><div class="fi-bar"><div class="fi-fill" id="fi-sf" style="background:var(--gold);width:0%"></div></div></div>
+    <div class="fic"><div class="fi-l">Spent This Month</div><div class="fi-v c-c" id="fi-sp">£0</div><div class="fi-s" id="fi-sps">of budget</div><div class="fi-bar"><div class="fi-fill" id="fi-pf" style="background:var(--coral);width:0%"></div></div></div>
+    <div class="fic"><div class="fi-l">Budget Remaining</div><div class="fi-v c-e" id="fi-rm">£0</div><div class="fi-s">available to spend</div></div>
+  </div>
+
+  <div class="g2 mb24">
+    <div class="card">
+      <div class="clbl">Add Transaction</div>
+      <div class="fg"><label class="fl">Type</label><select class="inp" id="fi-type"><option value="expense">Expense</option><option value="saving">Saving</option><option value="income">Income</option></select></div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Amount (£)</label><input class="inp" type="number" id="fi-amt" placeholder="0.00" step=".01"></div>
+        <div class="fg"><label class="fl">Category</label><select class="inp" id="fi-cat"><option>Food & Drink</option><option>Transport</option><option>Rent / Bills</option><option>Entertainment</option><option>Fitness</option><option>Education</option><option>Clothes</option><option>Investment</option><option>Other</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Description</label><input class="inp" type="text" id="fi-desc" placeholder="What was this for?"></div>
+      <button class="btn btn-gold w100" onclick="logTx()">Add Transaction</button>
+    </div>
+    <div class="card">
+      <div class="clbl">Spending by Category</div>
+      <div id="fi-cats"></div>
+      <div class="sep"></div>
+      <div class="mc-lbl">Savings Streak</div>
+      <div class="row mt8"><div class="mc-val gold" id="fi-streak" style="font-size:30px;">0</div><div class="mc-sub" style="margin-left:8px;margin-top:0;">months on target 🎯</div></div>
+    </div>
+  </div>
+
+  <div class="card"><div class="clbl">Transaction History</div><div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead><tbody id="fi-log"></tbody></table></div></div>
+</div>
+
+<!-- ████ WELLBEING ████ -->
+<div class="page" id="page-wellbeing">
+  <div class="ph"><div class="ph-eye">Mental Health</div><div class="ph-h">Wellbeing</div><div class="ph-sub">Set your targets. Check in daily. This is the foundation everything else is built on.</div></div>
+
+  <div class="set-card">
+    <div class="set-title"><div class="set-dot"></div>Daily Targets</div>
+    <div class="g3-form">
+      <div class="fg"><label class="fl">Meditation (mins)</label><input class="inp" type="number" id="w-mt" placeholder="10" oninput="saveWS()"></div>
+      <div class="fg"><label class="fl">Water Target (litres)</label><input class="inp" type="number" id="w-wt" placeholder="2" step=".5" oninput="saveWS()"></div>
+      <div class="fg"><label class="fl">Custom Habit</label><input class="inp" type="text" id="w-ch" placeholder="e.g. Cold shower, Walk…" oninput="saveWS()"></div>
+    </div>
+  </div>
+
+  <div class="g2 mb24">
+    <div class="card">
+      <div class="clbl">Today's Check-In</div>
+      <div class="mood-row mb16" id="moodRow">
+        <div class="mb" onclick="setMood(1)" data-v="1">😔</div>
+        <div class="mb" onclick="setMood(2)" data-v="2">😐</div>
+        <div class="mb" onclick="setMood(3)" data-v="3">🙂</div>
+        <div class="mb" onclick="setMood(4)" data-v="4">😊</div>
+        <div class="mb" onclick="setMood(5)" data-v="5">🤩</div>
+      </div>
+      <div class="fl">Energy — <span class="c-g" id="ev">5/10</span></div>
+      <input type="range" class="s-gold" id="w-en" min="1" max="10" value="5" oninput="document.getElementById('ev').textContent=this.value+'/10'">
+      <div class="fl" style="margin-top:14px;">Stress — <span class="c-c" id="sv">5/10</span></div>
+      <input type="range" class="s-red" id="w-st" min="1" max="10" value="5" oninput="document.getElementById('sv').textContent=this.value+'/10'">
+    </div>
+    <div class="card">
+      <div class="clbl">Daily Reflection</div>
+      <div class="fg"><label class="fl">3 Wins Today</label><textarea class="inp" id="w-gd" placeholder="What went well? No matter how small…"></textarea></div>
+      <div class="fg"><label class="fl">One Thing to Improve</label><textarea class="inp" id="w-im" placeholder="Be honest with yourself…" style="min-height:68px;"></textarea></div>
+      <button class="btn btn-white w100" onclick="saveRefl()">Save Reflection</button>
+    </div>
+  </div>
+
+  <div class="card mb24"><div class="clbl">Wellbeing Habits</div><div id="w-habs"></div></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="clbl">Mood — Last 14 Days</div>
+      <div class="trend-chart"><div class="tc-bars" id="moodChart"></div></div>
+      <div class="row" style="justify-content:space-between;margin-top:6px;"><span class="fs11 c-m">14 days ago</span><span class="fs11 c-m">Today</span></div>
+    </div>
+    <div class="coach"><div class="coach-lbl">⚡ Coach</div><div class="coach-txt">"The sharpest minds in finance understand that emotional regulation is the ultimate competitive edge. Meditate. Reflect. Breathe. Your mental health is not a soft skill — it is the skill."</div></div>
+  </div>
+</div>
+
+<!-- ████ SLEEP ████ -->
+<div class="page" id="page-sleep">
+  <div class="ph"><div class="ph-eye">Recovery & Rest</div><div class="ph-h">Sleep Tracker</div><div class="ph-sub">Set your bedtime target — it shows on your dashboard every evening. Protect it like it's your job.</div></div>
+
+  <div class="set-card">
+    <div class="set-title"><div class="set-dot"></div>Sleep Targets</div>
+    <div class="g3-form">
+      <div class="fg"><label class="fl">Target Hours</label><input class="inp" type="number" id="s-th" placeholder="8" step=".5" oninput="saveSS()"></div>
+      <div class="fg"><label class="fl">Target Bedtime</label><input class="inp" type="time" id="s-tb" value="23:00" oninput="saveSS()"></div>
+      <div class="fg"><label class="fl">Target Wake Time</label><input class="inp" type="time" id="s-tw" value="07:00" oninput="saveSS()"></div>
+    </div>
+  </div>
+
+  <div class="g4 mb24">
+    <div class="mc"><div class="mc-lbl">7-Day Average</div><div class="mc-val blue" id="s-avg">—</div><div class="mc-sub">hours/night</div></div>
+    <div class="mc"><div class="mc-lbl">Sleep Debt</div><div class="mc-val red" id="s-dbt">—</div><div class="mc-sub">hours below target</div></div>
+    <div class="mc"><div class="mc-lbl">Best Night</div><div class="mc-val green" id="s-bst">—</div><div class="mc-sub">this month</div></div>
+    <div class="mc"><div class="mc-lbl">On Target Nights</div><div class="mc-val gold" id="s-ont">—</div><div class="mc-sub">this month</div></div>
+  </div>
+
+  <div class="g2 mb24">
+    <div class="card">
+      <div class="clbl">Log Last Night</div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Bedtime</label><input class="inp" type="time" id="s-bed" value="23:00"></div>
+        <div class="fg"><label class="fl">Wake Time</label><input class="inp" type="time" id="s-wk" value="07:00"></div>
+      </div>
+      <div class="fg"><label class="fl">Quality — <span id="s-ql">😐 Okay</span></label>
+        <input type="range" class="s-blue" id="s-q" min="1" max="5" value="3" style="width:100%;margin-top:6px;" oninput="document.getElementById('s-ql').textContent=['😴 Terrible','😪 Poor','😐 Okay','😊 Good','🌟 Excellent'][this.value-1]">
+        <div class="row space-between" style="margin-top:4px;font-size:14px;"><span>😴</span><span>😪</span><span>😐</span><span>😊</span><span>🌟</span></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><input class="inp" type="text" id="s-no" placeholder="Woke at 3am, took melatonin…"></div>
+      <button class="btn btn-gold w100" onclick="logSleep()">Log Sleep</button>
+    </div>
+    <div class="card">
+      <div class="clbl">Last 14 Nights</div>
+      <div class="trend-chart"><div class="tc-bars" id="sleepChart"></div></div>
+      <div class="row space-between mt8"><span class="fs11 c-m">14 nights ago</span><span class="fs11 c-m">Last night</span></div>
+      <div class="sep"></div>
+      <div class="row" style="gap:24px;">
+        <div><div class="mc-lbl">Avg Bedtime</div><div style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px;" id="s-abed">—</div></div>
+        <div><div class="mc-lbl">Avg Wake</div><div style="font-size:18px;font-weight:800;color:var(--t1);margin-top:4px;" id="s-awk">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="coach mb24"><div class="coach-lbl">⚡ Sleep Coach</div><div class="coach-txt">"LeBron sleeps 8–9 hours and calls it his #1 performance tool. You are training 5 days a week and studying for the CFA. Your brain and body rebuild every night. Protect your sleep like it is your most important asset — because it is."</div></div>
+
+  <div class="card"><div class="clbl">Sleep History</div><div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>Bedtime</th><th>Wake</th><th>Duration</th><th>Quality</th><th>Notes</th><th></th></tr></thead><tbody id="s-log"></tbody></table></div></div>
+</div>
+
+</main>
+
+<!-- ═══ QUICK LOG MODAL ═══ -->
+<div id="modal-overlay" onclick="closeModalOut(event)">
+  <div id="modal">
+    <div class="modal-head">
+      <div class="modal-title">Quick Log</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-tabs">
+      <div class="mtab on" onclick="mTab('gym')">🏋️ Gym</div>
+      <div class="mtab" onclick="mTab('cfa')">📚 CFA</div>
+      <div class="mtab" onclick="mTab('finance')">💰 Finance</div>
+      <div class="mtab" onclick="mTab('sleep')">🌙 Sleep</div>
+      <div class="mtab" onclick="mTab('mood')">🧘 Mood</div>
+    </div>
+
+    <!-- GYM -->
+    <div class="modal-section on" id="ms-gym">
+      <div class="fg"><label class="fl">Workout Type</label><select class="inp" id="m-ftype"><option>Push — Chest / Shoulders / Triceps</option><option>Pull — Back / Biceps</option><option>Legs</option><option>Full Body</option><option>Cardio</option><option>Active Recovery</option></select></div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Duration (mins)</label><input class="inp" type="number" id="m-fdur" placeholder="60"></div>
+        <div class="fg"><label class="fl">Intensity</label><select class="inp" id="m-fint"><option>Easy</option><option selected>Moderate</option><option>Hard</option><option>All-out</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><input class="inp" type="text" id="m-fnotes" placeholder="How did it go?"></div>
+      <button class="btn btn-gold w100" onclick="mLogGym()">Log Workout ✓</button>
+    </div>
+
+    <!-- CFA -->
+    <div class="modal-section" id="ms-cfa">
+      <div class="fg"><label class="fl">Type</label><select class="inp" id="m-ltype"><option value="CFA">CFA Study</option><option value="Book">Book</option><option value="Course">Course</option><option value="Other">Other</option></select></div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Hours</label><input class="inp" type="number" id="m-lhrs" placeholder="1.5" step=".5"></div>
+        <div class="fg"><label class="fl">Topic</label><input class="inp" type="text" id="m-ltopic" placeholder="Fixed Income…"></div>
+      </div>
+      <button class="btn btn-gold w100" onclick="mLogLearn()">Log Session ✓</button>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="modal-section" id="ms-finance">
+      <div class="fg"><label class="fl">Type</label><select class="inp" id="m-fxtype"><option value="expense">Expense</option><option value="saving">Saving</option><option value="income">Income</option></select></div>
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Amount (£)</label><input class="inp" type="number" id="m-famt" placeholder="0.00" step=".01"></div>
+        <div class="fg"><label class="fl">Category</label><select class="inp" id="m-fcat"><option>Food & Drink</option><option>Transport</option><option>Rent / Bills</option><option>Entertainment</option><option>Fitness</option><option>Education</option><option>Clothes</option><option>Investment</option><option>Other</option></select></div>
+      </div>
+      <div class="fg"><label class="fl">Description</label><input class="inp" type="text" id="m-fdesc" placeholder="What was this for?"></div>
+      <button class="btn btn-gold w100" onclick="mLogTx()">Add Transaction ✓</button>
+    </div>
+
+    <!-- SLEEP -->
+    <div class="modal-section" id="ms-sleep">
+      <div class="g2-form">
+        <div class="fg"><label class="fl">Bedtime</label><input class="inp" type="time" id="m-sbed" value="23:00"></div>
+        <div class="fg"><label class="fl">Wake Time</label><input class="inp" type="time" id="m-swk" value="07:00"></div>
+      </div>
+      <div class="fg"><label class="fl">Quality — <span id="m-sql">😐 Okay</span></label>
+        <input type="range" class="s-blue" id="m-sq" min="1" max="5" value="3" style="width:100%;margin-top:6px;" oninput="document.getElementById('m-sql').textContent=['😴 Terrible','😪 Poor','😐 Okay','😊 Good','🌟 Excellent'][this.value-1]">
+      </div>
+      <button class="btn btn-gold w100" onclick="mLogSleep()">Log Sleep ✓</button>
+    </div>
+
+    <!-- MOOD -->
+    <div class="modal-section" id="ms-mood">
+      <div class="fg"><label class="fl">How are you feeling?</label>
+        <div class="mood-row" id="m-moodRow">
+          <div class="mb" onclick="mSetMood(1)" data-v="1">😔</div>
+          <div class="mb" onclick="mSetMood(2)" data-v="2">😐</div>
+          <div class="mb" onclick="mSetMood(3)" data-v="3">🙂</div>
+          <div class="mb" onclick="mSetMood(4)" data-v="4">😊</div>
+          <div class="mb" onclick="mSetMood(5)" data-v="5">🤩</div>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Energy — <span class="c-g" id="m-ev">5/10</span></label>
+        <input type="range" class="s-gold" id="m-en" min="1" max="10" value="5" oninput="document.getElementById('m-ev').textContent=this.value+'/10'"></div>
+      <div class="fg"><label class="fl">Stress — <span class="c-c" id="m-sv">5/10</span></label>
+        <input type="range" class="s-red" id="m-st" min="1" max="10" value="5" oninput="document.getElementById('m-sv').textContent=this.value+'/10'"></div>
+      <div class="fg"><label class="fl">Quick Win (optional)</label><input class="inp" type="text" id="m-win" placeholder="One thing that went well today…"></div>
+      <button class="btn btn-gold w100" onclick="mLogMood()">Save Check-In ✓</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CORE
+// ═══════════════════════════════════════════
+const S = {
+  g: k => { try { return JSON.parse(localStorage.getItem('lio4_'+k)); } catch { return null; } },
+  s: (k,v) => localStorage.setItem('lio4_'+k, JSON.stringify(v))
+};
+
+const td   = () => new Date().toISOString().slice(0,10);
+const mth  = () => new Date().toISOString().slice(0,7);
+const wkS  = () => { const d=new Date(),day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1); return new Date(new Date().setDate(diff)).toISOString().slice(0,10); };
+const t2m  = t  => { const[h,m]=t.split(':').map(Number); return h*60+m; };
+const m2t  = m  => `${Math.floor(m/60).toString().padStart(2,'0')}:${(m%60).toString().padStart(2,'0')}`;
+const dayName  = d => ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d];
+const dayFull  = d => ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d];
+const MONTHS   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Auto date rollover — check once per minute
+let _lastDate = td();
+setInterval(() => { if(td() !== _lastDate){ _lastDate=td(); refreshAll(); }}, 60000);
+
+// Live clock
+function tickClock(){
+  const now=new Date();
+  document.getElementById('tbTime').textContent =
+    now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+}
+setInterval(tickClock,1000); tickClock();
+
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ═══════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════
+const PAGE_TITLES = {home:'Dashboard',fitness:'Fitness',learning:'Learning & CFA',finance:'Finance',wellbeing:'Wellbeing',sleep:'Sleep'};
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  const pages=['home','fitness','learning','finance','wellbeing','sleep'];
+  document.querySelectorAll('.ni')[pages.indexOf(id)].classList.add('on');
+  document.getElementById('tbTitle').textContent = PAGE_TITLES[id];
+}
+
+// ═══════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════
+function openModal(tab='gym'){ document.getElementById('modal-overlay').classList.add('open'); mTab(tab); }
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+function closeModalOut(e){ if(e.target===document.getElementById('modal-overlay'))closeModal(); }
+function mTab(id){
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.modal-section').forEach(s=>s.classList.remove('on'));
+  const tabs=['gym','cfa','finance','sleep','mood'];
+  document.querySelectorAll('.mtab')[tabs.indexOf(id)].classList.add('on');
+  document.getElementById('ms-'+id).classList.add('on');
+}
+let _mMood=0;
+function mSetMood(v){ _mMood=v; document.querySelectorAll('#m-moodRow .mb').forEach(b=>b.classList.remove('on')); document.querySelector(`#m-moodRow .mb[data-v="${v}"]`).classList.add('on'); }
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+function boot(){
+  setDateLabels(); setCoachQuote();
+  loadSettings();
+  refreshAll();
+}
+
+function setDateLabels(){
+  const d=new Date();
+  document.getElementById('sbDay').textContent = dayFull(d.getDay());
+  document.getElementById('sbDate').textContent = d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();
+}
+
+const QUOTES=[
+  "Every check mark is a vote for the person you're becoming.",
+  "The CFA, the physique, the savings — built in days exactly like today.",
+  "You don't build habits. You build an identity. Prove it today.",
+  "Consistency is the most underrated skill. Just show up again.",
+  "Your future self watches every decision you make right now.",
+  "Discipline is the highest form of self-respect.",
+  "Sleep, train, study, save. Simple isn't easy — that's exactly why it separates you.",
+];
+function setCoachQuote(){ document.getElementById('sbQ').textContent='\u201C'+QUOTES[new Date().getDate()%QUOTES.length]+'\u201D'; }
+
+function refreshAll(){
+  setDateLabels(); setCoachQuote();
+  renderHome(); renderFitness(); renderLearning(); renderFinance(); renderWellbeing(); renderSleep();
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS LOAD / SAVE
+// ═══════════════════════════════════════════
+function loadSettings(){
+  const fs=S.g('fs')||{}, ls=S.g('ls')||{}, fi=S.g('fi')||{}, ws=S.g('ws')||{}, ss=S.g('ss')||{};
+  // Fitness
+  if(document.getElementById('f-wt')) document.getElementById('f-wt').value=fs.wt||5;
+  if(document.getElementById('f-dd')) document.getElementById('f-dd').value=fs.dd||60;
+  if(document.getElementById('f-rl')) document.getElementById('f-rl').value=fs.rl||'Rest & Recovery';
+  // Learning
+  ['l-cd','l-cm','l-ld','l-bm','l-ct','l-lt'].forEach(id=>{ if(document.getElementById(id))document.getElementById(id).value=ls[id]||''; });
+  // Finance
+  if(document.getElementById('fi-inc'))document.getElementById('fi-inc').value=fi.inc||'';
+  if(document.getElementById('fi-st')) document.getElementById('fi-st').value=fi.st||'';
+  if(document.getElementById('fi-bt')) document.getElementById('fi-bt').value=fi.bt||'';
+  // Wellbeing
+  if(document.getElementById('w-mt'))document.getElementById('w-mt').value=ws.mt||'';
+  if(document.getElementById('w-wt'))document.getElementById('w-wt').value=ws.wt||'';
+  if(document.getElementById('w-ch'))document.getElementById('w-ch').value=ws.ch||'';
+  // Sleep
+  if(document.getElementById('s-th'))document.getElementById('s-th').value=ss.th||8;
+  if(document.getElementById('s-tb'))document.getElementById('s-tb').value=ss.tb||'23:00';
+  if(document.getElementById('s-tw'))document.getElementById('s-tw').value=ss.tw||'07:00';
+  buildGymGrid();
+}
+
+function saveFS(){ S.s('fs',{wt:+document.getElementById('f-wt').value||5,dd:+document.getElementById('f-dd').value||60,rl:document.getElementById('f-rl').value||'Rest & Recovery',sched:getGymSched()}); renderHome(); renderFitness(); }
+function saveLS(){ S.s('ls',{'l-cd':document.getElementById('l-cd').value,'l-cm':document.getElementById('l-cm').value,'l-ld':document.getElementById('l-ld').value,'l-bm':document.getElementById('l-bm').value,'l-ct':document.getElementById('l-ct').value,'l-lt':document.getElementById('l-lt').value}); renderHome(); }
+function saveFI(){ S.s('fi',{inc:+document.getElementById('fi-inc').value||3000,st:+document.getElementById('fi-st').value||500,bt:+document.getElementById('fi-bt').value||1500}); renderFinance(); renderHome(); }
+function saveWS(){ S.s('ws',{mt:document.getElementById('w-mt').value||10,wt:document.getElementById('w-wt').value||2,ch:document.getElementById('w-ch').value||''}); renderWellbeing(); renderHome(); }
+function saveSS(){ S.s('ss',{th:+document.getElementById('s-th').value||8,tb:document.getElementById('s-tb').value||'23:00',tw:document.getElementById('s-tw').value||'07:00'}); renderHome(); }
+
+// ═══════════════════════════════════════════
+//  GYM SCHEDULE
+// ═══════════════════════════════════════════
+const GYM_DAYS=[1,2,3,4,6];
+const DEF_SPLITS={1:'Push — Chest / Shoulders / Triceps',2:'Pull — Back / Biceps',3:'Legs',4:'Push — Chest / Shoulders / Triceps',6:'Pull — Back / Biceps'};
+
+function getGymSched(){
+  const saved=(S.g('fs')||{}).sched||{};
+  const s={};
+  for(let i=0;i<7;i++) s[i]=saved[i]!=null?saved[i]:(GYM_DAYS.includes(i)?DEF_SPLITS[i]||'Gym':'');
+  return s;
+}
+function buildGymGrid(){
+  const el=document.getElementById('gymGrid'); if(!el)return;
+  const sc=getGymSched();
+  el.innerHTML=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div style="font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:${GYM_DAYS.includes(i)?'var(--gold)':'var(--t3)'};">${n}</div>
+      <input class="inp" type="text" style="font-size:11px;padding:7px 9px;${!GYM_DAYS.includes(i)?'opacity:.45;':''}"
+        placeholder="${GYM_DAYS.includes(i)?'Workout':'Rest'}"
+        value="${sc[i]||''}" onchange="updateSplit(${i},this.value)">
+    </div>`).join('');
+}
+function updateSplit(day,val){
+  const fs=S.g('fs')||{}; if(!fs.sched)fs.sched=getGymSched();
+  fs.sched[day]=val; S.s('fs',fs); renderHome();
+}
+
+// ═══════════════════════════════════════════
+//  DAILY TASKS + DASHBOARD
+// ═══════════════════════════════════════════
+function getDC(){ return S.g('dc')||{}; }
+function toggleDT(key){
+  const dc=getDC(); if(!dc[td()])dc[td()]={};
+  dc[td()][key]=!dc[td()][key]; S.s('dc',dc);
+  renderHome();
+  if(dc[td()][key]) toast('✓ Done! Keep building.');
+}
+
+function buildDailyTasks(){
+  const dow=new Date().getDay();
+  const sc=getGymSched();
+  const ls=S.g('ls')||{};
+  const ws=S.g('ws')||{};
+  const ss=S.g('ss')||{};
+  const fi=S.g('fi')||{};
+  const tasks=[];
+
+  // Fitness
+  const split=sc[dow]; const isGym=GYM_DAYS.includes(dow);
+  tasks.push({key:'gym',icon:'🏋️',cat:'Fitness',name:isGym&&split?split:(S.g('fs')||{}).rl||'Rest & Recovery',detail:isGym?'Log your session in Fitness':'Active rest — walk, stretch, recover',tag:isGym?'Gym Day':'Rest Day'});
+
+  // CFA
+  const cfaH=ls['l-cd']||'—'; const cfaT=ls['l-ct']||'your set topic';
+  tasks.push({key:'cfa',icon:'📚',cat:'CFA Study',name:cfaH!=='—'?`${cfaH}h CFA Study`:'CFA Study Session',detail:`Topic: ${cfaT}`,tag:`${cfaH}h`});
+
+  // Learning
+  const lH=ls['l-ld']||'—'; const lT=ls['l-lt']||'your set topic';
+  tasks.push({key:'learn',icon:'🧠',cat:'Learning',name:lH!=='—'?`${lH}h of Learning`:'Learning Session',detail:`Focus: ${lT}`,tag:`${lH}h`});
+
+  // Finance
+  const st=fi.st;
+  tasks.push({key:'finance',icon:'💰',cat:'Finance',name:st?`Save towards £${st}/mo`:'Review finances',detail:'Log transactions · track spending',tag:st?`£${st}/mo`:'Daily'});
+
+  // Wellbeing
+  const mt=ws.mt||10;
+  tasks.push({key:'meditate',icon:'🧘',cat:'Wellbeing',name:`Meditate ${mt} mins`,detail:'Mindfulness, breathing, or guided',tag:`${mt} min`});
+
+  // Sleep
+  const tb=ss.tb||'23:00';
+  tasks.push({key:'sleep',icon:'🌙',cat:'Sleep',name:`In bed by ${tb}`,detail:`Target: ${ss.th||8} hours tonight`,tag:tb});
+
+  return tasks;
+}
+
+function overallStreak(){
+  // Streak = days where at least 4/6 tasks completed
+  const dc=getDC(); let streak=0; let d=new Date();
+  for(let i=0;i<365;i++){
+    const k=d.toISOString().slice(0,10);
+    const day=dc[k]||{};
+    const done=Object.values(day).filter(Boolean).length;
+    if(done>=4) streak++;
+    else if(i>0) break;
+    d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+
+function renderHome(){
+  const dc=getDC(); const today=dc[td()]||{};
+  const tasks=buildDailyTasks();
+
+  // Daily tasks grid
+  document.getElementById('dailyTasks').innerHTML=tasks.map(t=>{
+    const done=!!today[t.key];
+    return `<div class="dt ${done?'done':''}" onclick="toggleDT('${t.key}')">
+      <div class="dt-top">
+        <div class="dt-icon">${t.icon}</div>
+        <div class="dt-check">${done?'✓':''}</div>
+      </div>
+      <div>
+        <div class="dt-cat">${t.cat}</div>
+        <div class="dt-name">${t.name}</div>
+        <div class="dt-detail">${t.detail}</div>
+      </div>
+      <div class="dt-tag">${t.tag}</div>
+    </div>`;
+  }).join('');
+
+  // Today label
+  document.getElementById('todayDay').textContent=dayFull(new Date().getDay());
+
+  // Score ring
+  const total=tasks.length; const doneN=tasks.filter(t=>today[t.key]).length;
+  const pct=Math.round(doneN/total*100);
+  const circ=2*Math.PI*54; const offset=circ-(pct/100)*circ;
+  document.getElementById('heroArc').style.strokeDashoffset=offset;
+  document.getElementById('heroArc').setAttribute('stroke-dasharray',circ.toFixed(1));
+  document.getElementById('heroPct').textContent=pct+'%';
+
+  // Ring colour based on score
+  const ringCol=pct>=80?'var(--emerald)':pct>=50?'var(--gold)':'var(--coral)';
+  document.getElementById('heroArc').style.stroke=ringCol;
+
+  // Title / message
+  const titles=['Start your day.','Good start.','Building momentum.','Halfway there!','Almost done!','On fire today! 🔥','Perfect day! 🏆'];
+  const msgs=[
+    'Complete your daily tasks to build momentum. Every check compounds.',
+    'One done — keep the energy going.',
+    'You\'re building something real today.',
+    'Three done. Push through the second half, Ishaan.',
+    'One task left. Don\'t stop now.',
+    'Five down. Finish the day strong.',
+    'Everything done. This is what elite looks like.',
+  ];
+  document.getElementById('heroTitle').textContent=titles[Math.min(doneN,6)];
+  document.getElementById('heroMsg').textContent=msgs[Math.min(doneN,6)];
+
+  // Overall streak
+  document.getElementById('heroStreak').textContent=overallStreak();
+
+  // Area pills
+  const areaMap={gym:'Fitness',cfa:'CFA',learn:'Learning',finance:'Finance',meditate:'Wellbeing',sleep:'Sleep'};
+  document.getElementById('heroAreas').innerHTML=Object.entries(areaMap).map(([k,lbl])=>{
+    const d=!!today[k];
+    return `<div class="apill ${d?'done':''}"><div class="adot"></div>${lbl}</div>`;
+  }).join('');
+
+  // Metric cards
+  renderMetrics();
+
+  // 7-day trend
+  renderTrend();
+
+  // Heatmap
+  renderHeatmap();
+
+  // Coach message (data-driven)
+  renderCoachMsg();
+
+  // Streak list
+  renderStreakList();
+}
+
+function renderMetrics(){
+  // Gym streak, CFA hrs, savings, sleep avg, mood avg
+  const workouts=S.g('workouts')||[];
+  const ll=S.g('ll')||[];
+  const txs=S.g('txs')||[];
+  const sleepL=S.g('sl')||[];
+  const moods=S.g('moods')||{};
+  const fi=S.g('fi')||{st:500};
+  const ls=S.g('ls')||{};
+
+  const wkS2=wkS();
+  const wkW=workouts.filter(w=>w.date>=wkS2).length;
+  const ftW=+(S.g('fs')||{}).wt||5;
+  const cfaT=+(ls['l-cm'])||40;
+  const cfaM=ll.filter(l=>l.date.startsWith(mth())&&l.type==='CFA').reduce((a,b)=>a+b.hrs,0);
+  const saved=txs.filter(t=>t.type==='saving'&&t.date.startsWith(mth())).reduce((a,b)=>a+b.amount,0);
+  const last7sl=sleepL.slice(0,7);
+  const avgSl=last7sl.length?(last7sl.reduce((a,b)=>a+b.hrs,0)/last7sl.length).toFixed(1):'—';
+  const moodVals=Object.entries(moods).filter(([k])=>k>=new Date(Date.now()-7*86400000).toISOString().slice(0,10)).map(([,v])=>v.val);
+  const avgMood=moodVals.length?(moodVals.reduce((a,b)=>a+b,0)/moodVals.length).toFixed(1):'—';
+  const moodEmoji=['','😔','😐','🙂','😊','🤩'];
+
+  const gymS=gymStreak();
+
+  document.getElementById('metricCards').innerHTML=`
+    <div class="mc"><div class="mc-lbl">Gym Streak</div><div class="mc-val green">${gymS}</div><div class="mc-sub">days 🔥</div><div class="prog"><div class="prog-row"><span>This week</span><span>${wkW}/${ftW}</span></div><div class="pt"><div class="pf pe" style="width:${Math.min(wkW/ftW,1)*100}%"></div></div></div></div>
+    <div class="mc"><div class="mc-lbl">CFA This Month</div><div class="mc-val blue">${cfaM.toFixed(1)}h</div><div class="mc-sub">hours studied</div><div class="prog"><div class="prog-row"><span>Target ${cfaT}h</span><span>${Math.round(Math.min(cfaM/cfaT,1)*100)}%</span></div><div class="pt"><div class="pf ps" style="width:${Math.min(cfaM/cfaT,1)*100}%"></div></div></div></div>
+    <div class="mc"><div class="mc-lbl">Saved This Month</div><div class="mc-val gold">£${saved.toFixed(0)}</div><div class="mc-sub">of £${fi.st||500} target</div><div class="prog"><div class="pt"><div class="pf pg" style="width:${Math.min(saved/(fi.st||500),1)*100}%"></div></div></div></div>
+    <div class="mc"><div class="mc-lbl">Avg Sleep (7d)</div><div class="mc-val ${avgSl>=8?'green':avgSl>=7?'gold':'red'}">${avgSl}${avgSl!=='—'?'h':''}</div><div class="mc-sub">hours/night</div></div>
+    <div class="mc"><div class="mc-lbl">Avg Mood (7d)</div><div class="mc-val">${avgMood!=='—'?moodEmoji[Math.round(avgMood)]+' '+avgMood:'—'}</div><div class="mc-sub">out of 5</div></div>
+  `;
+}
+
+function renderTrend(){
+  const dc=getDC(); const days=[]; const labels=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    const day=dc[k]||{};
+    const done=Object.values(day).filter(Boolean).length;
+    const pct=Math.round(done/6*100);
+    days.push({pct,label:dayName(d.getDay()),k});
+  }
+  const maxH=80;
+  document.getElementById('trendBars').innerHTML=days.map((d,i)=>{
+    const isToday=i===6;
+    const col=d.pct>=80?'var(--emerald)':d.pct>=50?'var(--gold)':'var(--b3)';
+    return `<div class="tc-bar" style="height:${Math.max(d.pct/100*maxH,3)}px;background:${col};opacity:${isToday?1:.65};" data-tip="${d.label}: ${d.pct}%"></div>`;
+  }).join('');
+  document.getElementById('trendLabels').innerHTML=days.map(d=>`<div class="tc-lbl">${d.label}</div>`).join('');
+}
+
+function renderHeatmap(){
+  const dc=getDC(); let html='';
+  for(let i=31;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    const n=Object.values(dc[k]||{}).filter(Boolean).length;
+    const cls=n===0?'':n<=2?'h1':n<=4?'h2':'h3';
+    html+=`<div class="hc ${cls}" title="${k}: ${n}/6 tasks"></div>`;
+  }
+  document.getElementById('heatmap').innerHTML=html;
+}
+
+function renderCoachMsg(){
+  const dc=getDC(); const today=dc[td()]||{};
+  const doneN=Object.values(today).filter(Boolean).length;
+  const workouts=S.g('workouts')||[];
+  const gymS=gymStreak();
+  const ll=S.g('ll')||[];
+  const cfaM=ll.filter(l=>l.date.startsWith(mth())&&l.type==='CFA').reduce((a,b)=>a+b.hrs,0);
+  const ls=S.g('ls')||{};
+  const cfaT=+(ls['l-cm'])||40;
+  const cfaPct=Math.round(cfaM/cfaT*100);
+  const sleepL=S.g('sl')||[];
+  const avgSl=sleepL.length>=3?(sleepL.slice(0,3).reduce((a,b)=>a+b.hrs,0)/3):8;
+
+  let msg='';
+  if(doneN===0) msg="A new day, a blank slate. Everything you want to achieve this year is built one day at a time. This is that day. Start now.";
+  else if(doneN>=6) msg=`Perfect score today, Ishaan. That's ${gymS} gym days in a row, ${cfaM.toFixed(1)}h of CFA this month (${cfaPct}% of target). You are executing at the highest level.`;
+  else if(gymS>=5) msg=`${gymS}-day gym streak — elite territory. Your body is adapting. Keep the intensity up. Now go finish the rest of today's tasks.`;
+  else if(cfaPct<50&&new Date().getDate()>15) msg=`You're ${cfaPct}% through your CFA target with half the month gone. The gap is closeable — but only with consistent daily sessions. Book the time now.`;
+  else if(avgSl<7) msg=`Your 3-day average sleep is ${avgSl.toFixed(1)}h — below target. Recovery is where gains are made. Prioritise sleep tonight or your performance in the gym and on CFA will suffer.`;
+  else msg=`${doneN}/6 tasks done today. You're building real discipline, Ishaan. The compounding effect of showing up daily is the most powerful force in self-improvement.`;
+
+  document.getElementById('coachMsg').textContent='\u201C'+msg+'\u201D';
+}
+
+function renderStreakList(){
+  const workouts=S.g('workouts')||[];
+  const ll=S.g('ll')||[];
+  const dc=getDC();
+
+  const streaks=[
+    {label:'🏋️ Gym',val:gymStreak(),col:'var(--emerald)'},
+    {label:'📚 CFA Study',val:cfaStreak(),col:'var(--sapphire)'},
+    {label:'💪 Daily Tasks',val:overallStreak(),col:'var(--gold)'},
+    {label:'🌙 Sleep Target',val:sleepStreakFn(),col:'var(--violet)'},
+  ];
+
+  document.getElementById('streakList').innerHTML=streaks.map((s,i)=>`
+    <div class="row space-between" style="padding:9px 0;${i<streaks.length-1?'border-bottom:1px solid var(--b1);':''}">
+      <span style="font-size:12.5px;font-weight:600;color:var(--t2);">${s.label}</span>
+      <span style="font-size:13px;font-weight:800;color:${s.col};">🔥 ${s.val} days</span>
+    </div>`).join('');
+}
+
+function gymStreak(){
+  const w=S.g('workouts')||[];
+  const dates=[...new Set(w.map(x=>x.date))].sort().reverse();
+  let s=0,prev=null;
+  for(const d of dates){
+    if(!prev){s=1;prev=d;continue;}
+    const diff=(new Date(prev)-new Date(d))/86400000;
+    if(diff<=2){s++;prev=d;}else break;
+  }
+  return s;
+}
+function cfaStreak(){
+  const ll=S.g('ll')||[]; let s=0; let d=new Date();
+  while(true){ const k=d.toISOString().slice(0,10); if(ll.some(l=>l.date===k&&l.type==='CFA')){s++;d.setDate(d.getDate()-1);}else break; }
+  return s;
+}
+function sleepStreakFn(){
+  const sl=S.g('sl')||[]; const ss=S.g('ss')||{th:8}; const tgt=+(ss.th)||7;
+  let s=0; let d=new Date();
+  while(true){ const k=d.toISOString().slice(0,10); if(sl.some(l=>l.date===k&&l.hrs>=tgt)){s++;d.setDate(d.getDate()-1);}else break; }
+  return s;
+}
+
+// ═══════════════════════════════════════════
+//  FITNESS
+// ═══════════════════════════════════════════
+function logWorkout(fromModal=false){
+  const t=fromModal?document.getElementById('m-ftype').value:document.getElementById('f-type').value;
+  const d=fromModal?document.getElementById('m-fdur').value:document.getElementById('f-dur').value;
+  const i=fromModal?document.getElementById('m-fint').value:document.getElementById('f-int').value;
+  const n=fromModal?document.getElementById('m-fnotes').value:document.getElementById('f-notes').value;
+  const w=S.g('workouts')||[];
+  w.unshift({id:Date.now(),date:td(),type:t,dur:d||'—',int:i,notes:n});
+  S.s('workouts',w);
+  const dc=getDC();if(!dc[td()])dc[td()]={};dc[td()].gym=true;S.s('dc',dc);
+  if(!fromModal){document.getElementById('f-notes').value='';document.getElementById('f-dur').value='';}
+  renderFitness();renderHome();
+  toast('💪 Workout logged!');
+  if(fromModal)closeModal();
+}
+function mLogGym(){ logWorkout(true); }
+function delW(id){ S.s('workouts',(S.g('workouts')||[]).filter(w=>w.id!==id)); renderFitness();renderHome(); }
+
+function renderFitness(){
+  const w=S.g('workouts')||[]; const fs=S.g('fs')||{wt:5};
+  const wkS2=wkS(); const wkW=w.filter(x=>x.date>=wkS2).length;
+  const moW=w.filter(x=>x.date.startsWith(mth())).length; const s=gymStreak();
+  document.getElementById('f-st').textContent=s;
+  document.getElementById('f-stk').textContent=s;
+  document.getElementById('f-wk').textContent=wkW+'/'+(fs.wt||5);
+  document.getElementById('f-wb').style.width=Math.min(wkW/(fs.wt||5),1)*100+'%';
+  document.getElementById('f-mo').textContent=moW;
+  document.getElementById('f-all').textContent=w.length;
+  buildGymGrid();
+
+  // Week strip — Mon to Sun of current week
+  const DAYS3=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const todayDow=new Date().getDay(); // 0=Sun
+  const monOffset=todayDow===0?-6:1-todayDow; // days from today to this Monday
+  document.getElementById('f-ws').innerHTML=DAYS3.map((n,i)=>{
+    const date=new Date(); date.setDate(date.getDate()+monOffset+i);
+    const k=date.toISOString().slice(0,10);
+    const hit=w.some(x=>x.date===k); const isT=k===td();
+    return `<div class="wd ${hit?'hit':''} ${isT?'today':''}">${n}<span>${date.getDate()}</span>${hit?'✓':''}</div>`;
+  }).join('');
+
+  // 7-day trend (sessions per day)
+  const tDays=[]; const tLbls=[];
+  for(let i=6;i>=0;i--){ const d2=new Date();d2.setDate(d2.getDate()-i); const k=d2.toISOString().slice(0,10); tDays.push(w.filter(x=>x.date===k).length); tLbls.push(dayName(d2.getDay())); }
+  document.getElementById('f-trend').innerHTML=tDays.map((v,i)=>`<div class="tc-bar" style="height:${v?80:4}px;background:${v?'var(--emerald)':'var(--b3)'};opacity:${i===6?1:.6};" data-tip="${tLbls[i]}: ${v} session(s)"></div>`).join('');
+  document.getElementById('f-trendL').innerHTML=tLbls.map(l=>`<div class="tc-lbl">${l}</div>`).join('');
+
+  const tbody=document.getElementById('f-log');
+  if(!w.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:24px;">No sessions yet — log your first workout!</td></tr>';return;}
+  tbody.innerHTML=w.map(x=>`<tr><td class="hi">${x.date}</td><td><span class="bdg bg-e">${x.type.split(' — ')[0]}</span></td><td>${x.dur} mins</td><td><span class="bdg bg-d">${x.int}</span></td><td>${x.notes||'—'}</td><td><span class="del" onclick="delW(${x.id})">✕</span></td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  LEARNING
+// ═══════════════════════════════════════════
+let tSec=0,tOn=false,tInt=null;
+function startT(){ if(tOn)return;tOn=true;document.getElementById('timerS').textContent='⏱ Studying — stay focused';tInt=setInterval(()=>{tSec++;const h=Math.floor(tSec/3600).toString().padStart(2,'0'),m=Math.floor((tSec%3600)/60).toString().padStart(2,'0'),s=(tSec%60).toString().padStart(2,'0');document.getElementById('timerD').textContent=`${h}:${m}:${s}`;},1000);}
+function pauseT(){ clearInterval(tInt);tOn=false;document.getElementById('timerS').textContent='Paused'; }
+function stopT(){
+  clearInterval(tInt);tOn=false;
+  const hrs=parseFloat((tSec/3600).toFixed(2));
+  if(hrs<.05){toast('Study at least 3 mins');return;}
+  const topic=document.getElementById('timerT').value||'CFA Study';
+  const ll=S.g('ll')||[]; ll.unshift({id:Date.now(),date:td(),type:'CFA',topic,hrs});
+  S.s('ll',ll);
+  const dc=getDC();if(!dc[td()])dc[td()]={};dc[td()].cfa=true;S.s('dc',dc);
+  tSec=0;document.getElementById('timerD').textContent='00:00:00';
+  document.getElementById('timerS').textContent='Session logged!';
+  document.getElementById('timerT').value='';
+  renderLearning();renderHome();
+  toast(`📚 ${hrs.toFixed(1)}h CFA logged`);
+}
+
+function logLearn(fromModal=false){
+  const hrs=parseFloat(fromModal?document.getElementById('m-lhrs').value:document.getElementById('l-mh').value);
+  const topic=fromModal?document.getElementById('m-ltopic').value:document.getElementById('l-mto').value||'—';
+  const type=fromModal?document.getElementById('m-ltype').value:document.getElementById('l-mt').value;
+  if(!hrs||hrs<=0){toast('Enter valid hours');return;}
+  const ll=S.g('ll')||[]; ll.unshift({id:Date.now(),date:td(),type,topic,hrs});
+  S.s('ll',ll);
+  const dc=getDC();if(!dc[td()])dc[td()]={};
+  if(type==='CFA')dc[td()].cfa=true;
+  else dc[td()].learn=true;
+  S.s('dc',dc);
+  if(!fromModal){document.getElementById('l-mh').value='';document.getElementById('l-mto').value='';}
+  renderLearning();renderHome();
+  toast('✓ Session logged');
+  if(fromModal)closeModal();
+}
+function mLogLearn(){ logLearn(true); }
+function delL(id){ S.s('ll',(S.g('ll')||[]).filter(l=>l.id!==id));renderLearning();renderHome(); }
+
+function renderLearning(){
+  const ll=S.g('ll')||[]; const ls=S.g('ls')||{};
+  const cfaT=+(ls['l-cm'])||40; const bT=+(ls['l-bm'])||2;
+  const cfaM=ll.filter(l=>l.date.startsWith(mth())&&l.type==='CFA').reduce((a,b)=>a+b.hrs,0);
+  const booksM=ll.filter(l=>l.date.startsWith(mth())&&l.type==='Book').length;
+  const learnWk=ll.filter(l=>l.date>=wkS()).reduce((a,b)=>a+b.hrs,0);
+  const cs=cfaStreak();
+
+  document.getElementById('l-cmh').textContent=cfaM.toFixed(1)+'h';
+  const cp=Math.round(Math.min(cfaM/cfaT,1)*100);
+  document.getElementById('l-cmp').textContent=cp+'%';
+  document.getElementById('l-cmb').style.width=cp+'%';
+  document.getElementById('l-cs').textContent=cs;
+  document.getElementById('l-csk').textContent=cs;
+  document.getElementById('l-bn').textContent=booksM;
+  document.getElementById('l-bb').style.width=Math.min(booksM/bT,1)*100+'%';
+  document.getElementById('l-lw').textContent=learnWk.toFixed(1)+'h';
+
+  const tbody=document.getElementById('l-log');
+  if(!ll.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:24px;">No sessions yet</td></tr>';return;}
+  tbody.innerHTML=ll.map(l=>`<tr><td class="hi">${l.date}</td><td><span class="bdg ${l.type==='CFA'?'bg-s':l.type==='Book'?'bg-g':'bg-d'}">${l.type}</span></td><td>${l.topic}</td><td class="c-g" style="font-weight:700;">${l.hrs}h</td><td><span class="del" onclick="delL(${l.id})">✕</span></td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  FINANCE
+// ═══════════════════════════════════════════
+function logTx(fromModal=false){
+  const type=fromModal?document.getElementById('m-fxtype').value:document.getElementById('fi-type').value;
+  const amount=parseFloat(fromModal?document.getElementById('m-famt').value:document.getElementById('fi-amt').value);
+  const cat=fromModal?document.getElementById('m-fcat').value:document.getElementById('fi-cat').value;
+  const desc=(fromModal?document.getElementById('m-fdesc').value:document.getElementById('fi-desc').value)||'—';
+  if(!amount||amount<=0){toast('Enter valid amount');return;}
+  const txs=S.g('txs')||[]; txs.unshift({id:Date.now(),date:td(),type,amount,cat,desc});
+  S.s('txs',txs);
+  if(type==='saving'){const dc=getDC();if(!dc[td()])dc[td()]={};dc[td()].finance=true;S.s('dc',dc);}
+  if(!fromModal){document.getElementById('fi-amt').value='';document.getElementById('fi-desc').value='';}
+  renderFinance();renderHome();
+  toast('✓ Transaction logged');
+  if(fromModal)closeModal();
+}
+function mLogTx(){ logTx(true); }
+function delTx(id){ S.s('txs',(S.g('txs')||[]).filter(t=>t.id!==id));renderFinance();renderHome(); }
+
+function renderFinance(){
+  const fi=S.g('fi')||{inc:3000,st:500,bt:1500};
+  const txs=S.g('txs')||[]; const mTxs=txs.filter(t=>t.date.startsWith(mth()));
+  const saved=mTxs.filter(t=>t.type==='saving').reduce((a,b)=>a+b.amount,0);
+  const spent=mTxs.filter(t=>t.type==='expense').reduce((a,b)=>a+b.amount,0);
+  const remain=(fi.bt||1500)-spent;
+
+  document.getElementById('fi-sv').textContent='£'+saved.toFixed(2);
+  const sp=Math.round(Math.min(saved/(fi.st||500),1)*100);
+  document.getElementById('fi-ss').textContent=sp+'% of £'+(fi.st||500)+' target';
+  document.getElementById('fi-sf').style.width=sp+'%';
+
+  document.getElementById('fi-sp').textContent='£'+spent.toFixed(2);
+  const ep=Math.round(Math.min(spent/(fi.bt||1500),1)*100);
+  document.getElementById('fi-sps').textContent=ep+'% of £'+(fi.bt||1500)+' budget';
+  document.getElementById('fi-pf').style.width=ep+'%';
+
+  const rmEl=document.getElementById('fi-rm');
+  rmEl.textContent='£'+Math.abs(remain).toFixed(2)+(remain<0?' over':'');
+  rmEl.style.color=remain<0?'var(--coral)':'var(--emerald)';
+
+  // Category breakdown
+  const cats={};
+  mTxs.filter(t=>t.type==='expense').forEach(t=>{cats[t.cat]=(cats[t.cat]||0)+t.amount;});
+  const catEl=document.getElementById('fi-cats');
+  if(!Object.keys(cats).length){catEl.innerHTML='<div style="font-size:12px;color:var(--t3);padding:8px 0;">No expenses this month yet.</div>';}
+  else{
+    const max=Math.max(...Object.values(cats));
+    catEl.innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+      <div style="margin-bottom:10px;">
+        <div class="row space-between" style="margin-bottom:4px;"><span style="font-size:12px;font-weight:600;color:var(--t2);">${cat}</span><span style="font-size:12px;font-weight:800;color:var(--coral);">£${amt.toFixed(2)}</span></div>
+        <div class="pt"><div class="pf pc" style="width:${(amt/max)*100}%"></div></div>
+      </div>`).join('');
+  }
+
+  // Savings streak
+  let ss=0;
+  for(let i=0;i<12;i++){const d2=new Date();d2.setMonth(d2.getMonth()-i);const m=d2.toISOString().slice(0,7);const ms=txs.filter(t=>t.type==='saving'&&t.date.startsWith(m)).reduce((a,b)=>a+b.amount,0);if(ms>=(fi.st||500))ss++;else if(i>0)break;}
+  document.getElementById('fi-streak').textContent=ss;
+
+  const tbody=document.getElementById('fi-log');
+  if(!txs.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:24px;">No transactions yet</td></tr>';return;}
+  tbody.innerHTML=txs.map(t=>`<tr><td class="hi">${t.date}</td><td><span class="bdg ${t.type==='saving'?'bg-g':t.type==='income'?'bg-e':'bg-c'}">${t.type}</span></td><td>${t.cat}</td><td>${t.desc}</td><td style="font-weight:700;color:${t.type==='expense'?'var(--coral)':'var(--emerald)'}">£${t.amount.toFixed(2)}</td><td><span class="del" onclick="delTx(${t.id})">✕</span></td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  WELLBEING
+// ═══════════════════════════════════════════
+const W_HABS=[
+  {id:'meditate',e:'🧘',n:'Meditate',m:'mindfulness or breathing'},
+  {id:'water',e:'💧',n:'Drink Water',m:'hit daily target'},
+  {id:'nosns',e:'📵',n:'No Social Media AM',m:'first hour screen-free'},
+  {id:'nutrition',e:'🥗',n:'Track Nutrition',m:'log what you eat'},
+  {id:'gratitude',e:'🙏',n:'Gratitude Practice',m:'3 things you\'re grateful for'},
+  {id:'outside',e:'🌿',n:'Get Outside',m:'fresh air & sunlight'},
+];
+function getHabs(){ return S.g('habs')||{}; }
+function toggleHab(id){
+  const h=getHabs();if(!h[td()])h[td()]={};h[td()][id]=!h[td()][id];S.s('habs',h);
+  if(id==='meditate'){const dc=getDC();if(!dc[td()])dc[td()]={};dc[td()].meditate=h[td()][id];S.s('dc',dc);renderHome();}
+  renderWellbeing(); if(h[td()][id])toast('✓ Habit done!');
+}
+function habStreak(id){ const h=getHabs();let s=0;let d=new Date();while(true){const k=d.toISOString().slice(0,10);if(h[k]?.[id]){s++;d.setDate(d.getDate()-1);}else break;}return s; }
+
+function setMood(v,fromModal=false){
+  const m=S.g('moods')||{};
+  m[td()]={val:v,energy:document.getElementById(fromModal?'m-en':'w-en').value,stress:document.getElementById(fromModal?'m-st':'w-st').value};
+  S.s('moods',m);
+  const row=fromModal?'#m-moodRow .mb':'#moodRow .mb';
+  document.querySelectorAll(row).forEach(b=>b.classList.remove('on'));
+  document.querySelector(`${fromModal?'#m-moodRow':'#moodRow'} .mb[data-v="${v}"]`).classList.add('on');
+  if(!fromModal)renderMoodChart();
+  toast('Mood saved ✓');
+}
+function mLogMood(){
+  if(_mMood>0)setMood(_mMood,true);
+  const j=S.g('journal')||[];
+  const win=document.getElementById('m-win').value;
+  if(win) j.unshift({id:Date.now(),date:td(),good:win,improve:'',energy:document.getElementById('m-en').value,stress:document.getElementById('m-st').value});
+  S.s('journal',j);
+  document.getElementById('m-win').value='';
+  renderHome();closeModal();toast('✓ Check-in saved');
+}
+
+function saveRefl(){
+  const good=document.getElementById('w-gd').value;
+  const imp=document.getElementById('w-im').value;
+  if(!good&&!imp){toast('Write something first');return;}
+  const j=S.g('journal')||[];
+  j.unshift({id:Date.now(),date:td(),good,improve:imp,energy:document.getElementById('w-en').value,stress:document.getElementById('w-st').value});
+  S.s('journal',j);
+  document.getElementById('w-gd').value='';document.getElementById('w-im').value='';
+  toast('✓ Reflection saved');
+}
+
+function renderWellbeing(){
+  const h=getHabs()[td()]||{}; const ws=S.g('ws')||{};
+  const habs=[...W_HABS]; habs[0].m=`${ws.mt||10} minutes`; habs[1].m=`${ws.wt||2}L target`;
+  if(ws.ch) habs.push({id:'custom',e:'⭐',n:ws.ch,m:'custom daily habit'});
+  document.getElementById('w-habs').innerHTML=habs.map(hab=>{const done=!!h[hab.id];const s=habStreak(hab.id);return `<div class="hr ${done?'done':''}" onclick="toggleHab('${hab.id}')"><div class="hcheck">${done?'✓':''}</div><div class="hemoji">${hab.e}</div><div style="flex:1;"><div class="hn">${hab.n}</div><div class="hmeta">${hab.m}</div></div>${s>0?`<div class="hstreak">🔥 ${s}</div>`:''}</div>`;}).join('');
+  const tm=(S.g('moods')||{})[td()];
+  if(tm){document.querySelectorAll('#moodRow .mb').forEach(b=>b.classList.remove('on'));document.querySelector(`#moodRow .mb[data-v="${tm.val}"]`)?.classList.add('on');}
+  renderMoodChart();
+}
+
+function renderMoodChart(){
+  const moods=S.g('moods')||[]; const data=[];
+  for(let i=13;i>=0;i--){const d2=new Date();d2.setDate(d2.getDate()-i);data.push(moods[d2.toISOString().slice(0,10)]?.val||0);}
+  const el=document.getElementById('moodChart');if(!el)return;
+  el.innerHTML=data.map((v,i)=>{const h=v?(v/5)*64:3;const col=v===0?'var(--b3)':v<=2?'var(--coral)':v<=3?'var(--gold)':'var(--emerald)';return `<div class="tc-bar" style="height:${h}px;background:${col};opacity:${i===13?1:.6};" data-tip="${v?v+'/5':'No entry'}"></div>`;}).join('');
+}
+
+// ═══════════════════════════════════════════
+//  SLEEP
+// ═══════════════════════════════════════════
+function logSleep(fromModal=false){
+  const bed=fromModal?document.getElementById('m-sbed').value:document.getElementById('s-bed').value;
+  const wk=fromModal?document.getElementById('m-swk').value:document.getElementById('s-wk').value;
+  const qual=parseInt(fromModal?document.getElementById('m-sq').value:document.getElementById('s-q').value);
+  const notes=fromModal?'':document.getElementById('s-no').value;
+  if(!bed||!wk){toast('Enter bedtime and wake time');return;}
+  let bm=t2m(bed),wm=t2m(wk); if(wm<bm)wm+=1440;
+  const hrs=parseFloat(((wm-bm)/60).toFixed(1));
+  const sl=S.g('sl')||[]; sl.unshift({id:Date.now(),date:td(),bed,wake:wk,hrs,qual,notes});
+  S.s('sl',sl);
+  const ss=S.g('ss')||{th:8};
+  if(hrs>=(+(ss.th)||7)){const dc=getDC();if(!dc[td()])dc[td()]={};dc[td()].sleep=true;S.s('dc',dc);}
+  if(!fromModal)document.getElementById('s-no').value='';
+  renderSleep();renderHome();
+  toast(hrs>=8?`🌟 ${hrs}h — great sleep!`:hrs>=7?`✓ ${hrs}h logged`:`⚠️ ${hrs}h — aim for ${ss.th||8}h`);
+  if(fromModal)closeModal();
+}
+function mLogSleep(){ logSleep(true); }
+function delSl(id){ S.s('sl',(S.g('sl')||[]).filter(l=>l.id!==id));renderSleep();renderHome(); }
+
+function renderSleep(){
+  const sl=S.g('sl')||[]; const ss=S.g('ss')||{th:8}; const tHrs=+(ss.th)||8;
+  const last7=sl.slice(0,7); const mSl=sl.filter(l=>l.date.startsWith(mth()));
+  const qL=['','😴','😪','😐','😊','🌟'];
+
+  const avg=last7.length?(last7.reduce((a,b)=>a+b.hrs,0)/last7.length).toFixed(1):null;
+  const debt=last7.length?Math.max(0,(tHrs*last7.length-last7.reduce((a,b)=>a+b.hrs,0))).toFixed(1):null;
+  const best=mSl.length?Math.max(...mSl.map(l=>l.hrs)).toFixed(1):null;
+  const onT=mSl.filter(l=>l.hrs>=tHrs).length;
+
+  document.getElementById('s-avg').textContent=avg?avg+'h':'—';
+  document.getElementById('s-dbt').textContent=debt?debt+'h':'—';
+  document.getElementById('s-bst').textContent=best?best+'h':'—';
+  document.getElementById('s-ont').textContent=onT||'—';
+
+  if(last7.length){
+    document.getElementById('s-abed').textContent=m2t(Math.round(last7.reduce((a,b)=>a+t2m(b.bed),0)/last7.length));
+    document.getElementById('s-awk').textContent=m2t(Math.round(last7.reduce((a,b)=>a+t2m(b.wake),0)/last7.length));
+  }
+
+  const cData=[];
+  for(let i=13;i>=0;i--){const d2=new Date();d2.setDate(d2.getDate()-i);const k=d2.toISOString().slice(0,10);const e=sl.find(l=>l.date===k);cData.push(e?e.hrs:0);}
+  const mV=Math.max(...cData,tHrs+1);
+  document.getElementById('sleepChart').innerHTML=cData.map((v,i)=>{const h=v?(v/mV)*80:3;const col=v===0?'var(--b3)':v<6?'var(--coral)':v<tHrs?'var(--gold)':'var(--sapphire)';return `<div class="tc-bar" style="height:${h}px;background:${col};opacity:${i===13?1:.6};" data-tip="${v?v+'h':'No data'}"></div>`;}).join('');
+
+  const tbody=document.getElementById('s-log');
+  if(!sl.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:24px;">No entries yet</td></tr>';return;}
+  tbody.innerHTML=sl.map(l=>`<tr><td class="hi">${l.date}</td><td>${l.bed}</td><td>${l.wake}</td><td style="font-weight:700;color:${l.hrs>=tHrs?'var(--emerald)':'var(--coral)'}">${l.hrs}h</td><td>${qL[l.qual]||'—'}</td><td>${l.notes||'—'}</td><td><span class="del" onclick="delSl(${l.id})">✕</span></td></tr>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════
+boot();
+</script>
+</body>
+</html>
